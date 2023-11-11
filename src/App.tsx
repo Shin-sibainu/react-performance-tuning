@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  lazy,
+  useRef,
+} from "react";
 import React from "react";
 import "./App.css";
 import { useToggle } from "./hooks/useToggle";
@@ -182,40 +190,86 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // export default App;
 
 //5.React Query(Tanstack Query)
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 
-function App() {
+// function App() {
+//   return (
+//     <QueryClientProvider client={queryClient}>
+//       <Example />
+//     </QueryClientProvider>
+//   );
+// }
+
+// function Example() {
+//   const { data, error, isPending, isFetching } = useQuery({
+//     queryKey: ["repoData"],
+//     queryFn: () =>
+//       fetch("https://api.github.com/repos/tannerlinsley/react-query").then(
+//         (res) => res.json()
+//       ),
+//   });
+
+//   if (isPending) return "Loading...";
+
+//   if (error) return "An error has occurred: " + error.message;
+
+//   return (
+//     <div>
+//       <h1>{data.name}</h1>
+//       <p>{data.description}</p>
+//       <strong>👀 {data.subscribers_count}</strong>{" "}
+//       <strong>✨ {data.stargazers_count}</strong>{" "}
+//       <strong>🍴 {data.forks_count}</strong>
+//       <div>{isFetching ? "Updating..." : ""}</div>
+//       <ReactQueryDevtools initialIsOpen />
+//     </div>
+//   );
+// }
+
+// export default App;
+
+//6. React.lazy() and useRef
+export default function MarkdownEditor() {
+  const [showPreview, setShowPreview] = useState(false);
+  const [markdown, setMarkdown] = useState("");
+
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const handleButton = () => {
+    if (textAreaRef.current?.value) {
+      setMarkdown(textAreaRef.current.value);
+    }
+    setShowPreview(!showPreview);
+  };
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <Example />
-    </QueryClientProvider>
+    <>
+      <textarea ref={textAreaRef} />
+      <label>
+        <button onClick={handleButton}>Show preview</button>
+      </label>
+      <hr />
+      {showPreview && (
+        <Suspense fallback={<Loading />}>
+          <h2>Preview</h2>
+          <MarkdownPreview markdown={markdown} />
+        </Suspense>
+      )}
+    </>
   );
 }
 
-function Example() {
-  const { data, error, isPending, isFetching } = useQuery({
-    queryKey: ["repoData"],
-    queryFn: () =>
-      fetch("https://api.github.com/repos/tannerlinsley/react-query").then(
-        (res) => res.json()
-      ),
-  });
-
-  if (isPending) return "Loading...";
-
-  if (error) return "An error has occurred: " + error.message;
-
-  return (
-    <div>
-      <h1>{data.name}</h1>
-      <p>{data.description}</p>
-      <strong>👀 {data.subscribers_count}</strong>{" "}
-      <strong>✨ {data.stargazers_count}</strong>{" "}
-      <strong>🍴 {data.forks_count}</strong>
-      <div>{isFetching ? "Updating..." : ""}</div>
-      <ReactQueryDevtools initialIsOpen />
-    </div>
-  );
+function Loading() {
+  return <p>Loading...</p>;
 }
 
-export default App;
+const MarkdownPreview = lazy(() =>
+  delayForDemo(import("./MarkdownPreview.js"))
+);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function delayForDemo(promise: any) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 2000);
+  }).then(() => promise);
+}

@@ -15,11 +15,13 @@
     "cursor": "^0.1.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "remarkable": "^2.0.1",
     "swr": "^2.2.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/remarkable": "^2.0.8",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
